@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#080b14">
 <title>MovieHub - Movie Search</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
 * {
@@ -50,7 +50,7 @@ header {
 
 .hero {
   text-align: center;
-  padding: 65px 18px 35px;
+  padding: 55px 18px 35px;
   background: radial-gradient(ellipse at top, #25294c, #080b14 70%);
 }
 
@@ -112,7 +112,7 @@ main {
 
 .movies {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 16px;
 }
 
@@ -121,24 +121,35 @@ main {
   border: 1px solid #272f41;
   border-radius: 12px;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .poster {
-  height: 180px;
+  height: 150px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(145deg, #343e64, #171b2c);
-  font-size: 55px;
+  font-size: 50px;
 }
 
 .movie-info {
   padding: 13px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: space-between;
 }
 
 .movie-info h3 {
-  font-size: 15px;
+  font-size: 14px;
   margin-bottom: 7px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.35;
 }
 
 .movie-info p {
@@ -180,6 +191,7 @@ footer {
   align-items: center;
   justify-content: center;
   padding: 20px;
+  z-index: 999;
 }
 
 .modal-content {
@@ -192,22 +204,43 @@ footer {
 }
 
 .modal-content h2 {
-  margin-bottom: 15px;
+  margin-bottom: 12px;
   color: #f5bd52;
+  font-size: 18px;
+  word-break: break-word;
 }
 
 .modal-content p {
   color: #c2c9d7;
-  line-height: 1.7;
+  line-height: 1.6;
   margin-bottom: 18px;
+  font-size: 14px;
+  word-break: break-word;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.get-btn {
+  flex: 1;
+  background: #1769dc;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 7px;
+  font-weight: bold;
+  cursor: pointer;
 }
 
 .close {
   background: #e9ad3c;
   color: #111;
   border: none;
-  padding: 10px 20px;
+  padding: 10px 18px;
   border-radius: 7px;
+  font-weight: bold;
   cursor: pointer;
 }
 
@@ -216,7 +249,7 @@ footer {
     grid-template-columns: repeat(2, 1fr);
   }
   .poster {
-    height: 150px;
+    height: 130px;
   }
 }
 </style>
@@ -250,7 +283,7 @@ footer {
   <h2 class="section-title">🎬 Movie Collection</h2>
 
   <div class="movies" id="movieList"></div>
-  <div id="message" role="status"></div>
+  <div id="message" role="status">Loading movies...</div>
 </main>
 
 <div class="modal" id="movieModal" role="dialog"
@@ -258,7 +291,10 @@ footer {
   <div class="modal-content">
     <h2 id="modalTitle"></h2>
     <p id="modalDescription"></p>
-    <button class="close" id="closeModal">Close</button>
+    <div class="modal-actions">
+      <button class="get-btn" id="getMovieBtn">📥 Get in Bot</button>
+      <button class="close" id="closeModal">Close</button>
+    </div>
   </div>
 </div>
 
@@ -271,49 +307,33 @@ footer {
 <script>
 "use strict";
 
-const movies = [
-  {
-    title: "Inception",
-    year: "2010",
-    genre: "Sci-Fi",
-    description: "A science fiction thriller about dreams and the human mind."
-  },
-  {
-    title: "Interstellar",
-    year: "2014",
-    genre: "Adventure",
-    description: "A space adventure about humanity and exploration."
-  },
-  {
-    title: "The Dark Knight",
-    year: "2008",
-    genre: "Action",
-    description: "A superhero crime thriller set in Gotham City."
-  },
-  {
-    title: "Avatar",
-    year: "2009",
-    genre: "Fantasy",
-    description: "An adventure on the mysterious world of Pandora."
-  },
-  {
-    title: "Titanic",
-    year: "1997",
-    genre: "Romance",
-    description: "A romantic drama aboard the famous ocean liner."
-  },
-  {
-    title: "Joker",
-    year: "2019",
-    genre: "Drama",
-    description: "A psychological drama about a troubled comedian."
-  }
-];
+// ⚠️ YAHAN APNE BOT KA RENDER URL DALEIN (last mein /api/movies rehne dein)
+const API_URL = "https://APNA-RENDER-URL.onrender.com/api/movies";
+const BOT_USERNAME = "MyMovieHub2026Bot";
 
 const movieList = document.getElementById("movieList");
 const searchInput = document.getElementById("searchInput");
 const message = document.getElementById("message");
 const modal = document.getElementById("movieModal");
+const getMovieBtn = document.getElementById("getMovieBtn");
+
+let selectedMovieId = null;
+let searchTimer = null;
+
+if (window.Telegram && window.Telegram.WebApp) {
+  window.Telegram.WebApp.ready();
+  window.Telegram.WebApp.expand();
+}
+
+function openMovieInBot(movieId) {
+  const link = `https://t.me/${BOT_USERNAME}?start=${encodeURIComponent(movieId)}`;
+  if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openTelegramLink) {
+    window.Telegram.WebApp.openTelegramLink(link);
+    window.Telegram.WebApp.close();
+  } else {
+    window.open(link, "_blank", "noopener");
+  }
+}
 
 function renderMovies(items) {
   movieList.replaceChildren();
@@ -336,67 +356,76 @@ function renderMovies(items) {
     const title = document.createElement("h3");
     title.textContent = movie.title;
 
-    const year = document.createElement("p");
-    year.textContent = movie.year + " • " + movie.genre;
+    const meta = document.createElement("p");
+    meta.textContent = `📦 ${movie.size}`;
 
     const button = document.createElement("button");
     button.className = "details";
     button.textContent = "View Details";
 
     button.addEventListener("click", () => {
-      document.getElementById("modalTitle").textContent =
-        movie.title;
-
+      selectedMovieId = movie.id;
+      document.getElementById("modalTitle").textContent = movie.title;
       document.getElementById("modalDescription").textContent =
-        movie.description + " Year: " + movie.year +
-        ". Genre: " + movie.genre + ".";
-
+        `📦 File Size: ${movie.size}\n\nClick "Get in Bot" to receive this movie directly in @${BOT_USERNAME}.`;
       modal.style.display = "flex";
     });
 
-    info.append(title, year, button);
+    info.append(title, meta, button);
     card.append(poster, info);
     movieList.append(card);
   });
 }
 
-function searchMovies() {
-  const query = searchInput.value.trim().toLowerCase();
+async function fetchMovies(query = "") {
+  message.textContent = query ? `Searching "${query}"...` : "Loading movies...";
+  try {
+    const url = query
+      ? `${API_URL}?q=${encodeURIComponent(query)}`
+      : API_URL;
 
-  const results = movies.filter(movie =>
-    movie.title.toLowerCase().includes(query) ||
-    movie.genre.toLowerCase().includes(query) ||
-    movie.year.includes(query)
-  );
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("Server error");
 
-  renderMovies(results);
+    const data = await res.json();
+    renderMovies(data);
+  } catch (err) {
+    movieList.replaceChildren();
+    message.textContent = "⚠️ Movies load nahi ho pa rahi hain. Bot server check karein.";
+  }
 }
 
-document.getElementById("searchButton")
-  .addEventListener("click", searchMovies);
+getMovieBtn.addEventListener("click", () => {
+  if (selectedMovieId) {
+    openMovieInBot(selectedMovieId);
+  }
+});
 
-searchInput.addEventListener("input", searchMovies);
+document.getElementById("searchButton").addEventListener("click", () => {
+  fetchMovies(searchInput.value.trim());
+});
 
-document.getElementById("closeModal")
-  .addEventListener("click", () => {
-    modal.style.display = "none";
-  });
+searchInput.addEventListener("input", () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    fetchMovies(searchInput.value.trim());
+  }, 350);
+});
+
+document.getElementById("closeModal").addEventListener("click", () => {
+  modal.style.display = "none";
+});
 
 modal.addEventListener("click", event => {
-  if (event.target === modal) {
-    modal.style.display = "none";
-  }
+  if (event.target === modal) modal.style.display = "none";
 });
 
 document.addEventListener("keydown", event => {
-  if (event.key === "Escape") {
-    modal.style.display = "none";
-  }
+  if (event.key === "Escape") modal.style.display = "none";
 });
 
-renderMovies(movies);
+fetchMovies();
 </script>
 
 </body>
-  </html>
-  
+</html>
