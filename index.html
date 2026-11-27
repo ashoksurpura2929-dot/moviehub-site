@@ -50,12 +50,12 @@ header {
 
 .hero {
   text-align: center;
-  padding: 55px 18px 35px;
+  padding: 50px 18px 32px;
   background: radial-gradient(ellipse at top, #25294c, #080b14 70%);
 }
 
 .hero h1 {
-  font-size: clamp(32px, 7vw, 48px);
+  font-size: clamp(30px, 7vw, 46px);
   margin-bottom: 12px;
 }
 
@@ -66,7 +66,7 @@ header {
 .hero p {
   color: #aeb6c9;
   line-height: 1.6;
-  margin-bottom: 25px;
+  margin-bottom: 24px;
 }
 
 .search {
@@ -82,7 +82,7 @@ header {
 .search input {
   flex: 1;
   min-width: 0;
-  padding: 16px;
+  padding: 15px;
   background: transparent;
   color: white;
   border: none;
@@ -102,12 +102,12 @@ header {
 main {
   max-width: 1100px;
   margin: auto;
-  padding: 30px 18px;
+  padding: 28px 18px;
 }
 
 .section-title {
-  font-size: 22px;
-  margin-bottom: 20px;
+  font-size: 21px;
+  margin-bottom: 18px;
 }
 
 .movies {
@@ -123,6 +123,21 @@ main {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  position: relative;
+}
+
+.folder-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(8, 11, 20, 0.88);
+  border: 1px solid #f5bd52;
+  color: #f5bd52;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 8px;
+  z-index: 2;
 }
 
 .poster {
@@ -195,62 +210,100 @@ footer {
   display: none;
   position: fixed;
   inset: 0;
-  background: #000c;
+  background: rgba(0, 0, 0, 0.82);
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 16px;
   z-index: 999;
 }
 
 .modal-content {
   background: #1a2030;
   border: 1px solid #3a4256;
-  padding: 25px;
+  padding: 20px;
   border-radius: 14px;
-  max-width: 400px;
+  max-width: 440px;
   width: 100%;
-}
-
-.modal-content h2 {
-  margin-bottom: 12px;
-  color: #f5bd52;
-  font-size: 18px;
-  word-break: break-word;
-}
-
-.modal-content p {
-  color: #c2c9d7;
-  line-height: 1.6;
-  margin-bottom: 18px;
-  font-size: 14px;
-  white-space: pre-line;
-  word-break: break-word;
-}
-
-.modal-actions {
+  max-height: 82vh;
   display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #2b3347;
+  padding-bottom: 10px;
+}
+
+.modal-header h2 {
+  color: #f5bd52;
+  font-size: 17px;
+  word-break: break-word;
+}
+
+.close-x {
+  background: #2b3347;
+  color: white;
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-weight: bold;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.episode-list {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-right: 4px;
+}
+
+.episode-item {
+  background: #121724;
+  border: 1px solid #293246;
+  border-radius: 10px;
+  padding: 11px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 10px;
 }
 
-.get-btn {
+.episode-meta {
   flex: 1;
+  min-width: 0;
+}
+
+.episode-title {
+  font-size: 13px;
+  color: #fff;
+  margin-bottom: 4px;
+  word-break: break-word;
+  line-height: 1.35;
+}
+
+.episode-size {
+  font-size: 11px;
+  color: #9ba5bc;
+}
+
+.ep-get-btn {
   background: #1769dc;
   color: white;
   border: none;
-  padding: 10px 16px;
+  padding: 8px 13px;
   border-radius: 7px;
+  font-size: 12px;
   font-weight: bold;
   cursor: pointer;
-}
-
-.close {
-  background: #e9ad3c;
-  color: #111;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 7px;
-  font-weight: bold;
-  cursor: pointer;
+  flex-shrink: 0;
 }
 
 @media(max-width: 380px) {
@@ -277,33 +330,32 @@ footer {
 
 <section class="hero">
   <h1>Discover <span>Movies</span></h1>
-  <p>Search your favorite movies and explore your movie library.</p>
+  <p>Search your favorite movies & web series folders.</p>
 
   <div class="search">
     <input id="searchInput"
            type="search"
-           placeholder="Search movies..."
+           placeholder="Search movies or series..."
            aria-label="Search movies">
     <button id="searchButton">Search</button>
   </div>
 </section>
 
 <main>
-  <h2 class="section-title">🎬 Movie Collection</h2>
+  <h2 class="section-title">📁 Movie & Series Folders</h2>
 
   <div class="movies" id="movieList"></div>
-  <div id="message" role="status">Loading movies...</div>
+  <div id="message" role="status">Loading library...</div>
 </main>
 
 <div class="modal" id="movieModal" role="dialog"
      aria-modal="true" aria-labelledby="modalTitle">
   <div class="modal-content">
-    <h2 id="modalTitle"></h2>
-    <p id="modalDescription"></p>
-    <div class="modal-actions">
-      <button class="get-btn" id="getMovieBtn">📥 Get in Bot</button>
-      <button class="close" id="closeModal">Close</button>
+    <div class="modal-header">
+      <h2 id="modalTitle"></h2>
+      <button class="close-x" id="closeModal" aria-label="Close">✕</button>
     </div>
+    <div class="episode-list" id="episodeList"></div>
   </div>
 </div>
 
@@ -323,9 +375,8 @@ const movieList = document.getElementById("movieList");
 const searchInput = document.getElementById("searchInput");
 const message = document.getElementById("message");
 const modal = document.getElementById("movieModal");
-const getMovieBtn = document.getElementById("getMovieBtn");
+const episodeList = document.getElementById("episodeList");
 
-let selectedMovieId = null;
 let searchTimer = null;
 
 if (window.Telegram && window.Telegram.WebApp) {
@@ -343,24 +394,66 @@ function openMovieInBot(movieId) {
   }
 }
 
-function renderMovies(items) {
+function openFolderModal(folder) {
+  document.getElementById("modalTitle").textContent =
+    folder.count > 1 ? `📁 ${folder.folder_name} (${folder.count})` : `🎬 ${folder.folder_name}`;
+
+  episodeList.replaceChildren();
+
+  folder.items.forEach(item => {
+    const row = document.createElement("div");
+    row.className = "episode-item";
+
+    const meta = document.createElement("div");
+    meta.className = "episode-meta";
+
+    const title = document.createElement("div");
+    title.className = "episode-title";
+    title.textContent = item.title;
+
+    const size = document.createElement("div");
+    size.className = "episode-size";
+    size.textContent = `📦 ${item.size}`;
+
+    meta.append(title, size);
+
+    const btn = document.createElement("button");
+    btn.className = "ep-get-btn";
+    btn.textContent = "📥 Get";
+    btn.addEventListener("click", () => openMovieInBot(item.id));
+
+    row.append(meta, btn);
+    episodeList.append(row);
+  });
+
+  modal.style.display = "flex";
+}
+
+function renderMovies(folders) {
   movieList.replaceChildren();
 
-  message.textContent = items.length
+  message.textContent = folders.length
     ? ""
-    : "No movies found. Try another search.";
+    : "No movies or series found. Try another search.";
 
-  items.forEach(movie => {
+  folders.forEach(folder => {
     const card = document.createElement("article");
     card.className = "movie";
+
+    if (folder.count > 1) {
+      const badge = document.createElement("div");
+      badge.className = "folder-badge";
+      badge.textContent = `📁 ${folder.count} Parts`;
+      card.append(badge);
+    }
 
     const poster = document.createElement("div");
     poster.className = "poster";
 
-    if (movie.poster && movie.poster.startsWith("http")) {
+    if (folder.poster && folder.poster.startsWith("http")) {
       const img = document.createElement("img");
-      img.src = movie.poster;
-      img.alt = movie.title;
+      img.src = folder.poster;
+      img.alt = folder.folder_name;
       img.loading = "lazy";
       img.onerror = () => {
         poster.textContent = "🎬";
@@ -374,32 +467,20 @@ function renderMovies(items) {
     info.className = "movie-info";
 
     const title = document.createElement("h3");
-    title.textContent = movie.title;
+    title.textContent = folder.folder_name;
 
     const metaParts = [];
-    if (movie.year) metaParts.push(movie.year);
-    if (movie.genre) metaParts.push(movie.genre);
-    metaParts.push(movie.size);
+    if (folder.year) metaParts.push(folder.year);
+    if (folder.genre) metaParts.push(folder.genre);
+    metaParts.push(folder.size);
 
     const meta = document.createElement("p");
     meta.textContent = metaParts.join(" • ");
 
     const button = document.createElement("button");
     button.className = "details";
-    button.textContent = "View Details";
-
-    button.addEventListener("click", () => {
-      selectedMovieId = movie.id;
-      document.getElementById("modalTitle").textContent = movie.title;
-
-      const detailsLines = [`📦 File Size: ${movie.size}`];
-      if (movie.year) detailsLines.push(`📅 Year: ${movie.year}`);
-      if (movie.genre) detailsLines.push(`🎭 Genre: ${movie.genre}`);
-      detailsLines.push(`\nClick "Get in Bot" to receive this movie directly in @${BOT_USERNAME}.`);
-
-      document.getElementById("modalDescription").textContent = detailsLines.join("\n");
-      modal.style.display = "flex";
-    });
+    button.textContent = folder.count > 1 ? `📁 Open (${folder.count})` : "View Details";
+    button.addEventListener("click", () => openFolderModal(folder));
 
     info.append(title, meta, button);
     card.append(poster, info);
@@ -408,7 +489,7 @@ function renderMovies(items) {
 }
 
 async function fetchMovies(query = "") {
-  message.textContent = query ? `Searching "${query}"...` : "Loading movies...";
+  message.textContent = query ? `Searching "${query}"...` : "Loading library...";
   try {
     const url = query
       ? `${API_URL}?q=${encodeURIComponent(query)}`
@@ -421,15 +502,9 @@ async function fetchMovies(query = "") {
     renderMovies(data);
   } catch (err) {
     movieList.replaceChildren();
-    message.textContent = "⚠️ Movies load nahi ho pa rahi hain. Bot server check karein.";
+    message.textContent = "⚠️ Library load nahi ho pa rahi hai. Bot server check karein.";
   }
 }
-
-getMovieBtn.addEventListener("click", () => {
-  if (selectedMovieId) {
-    openMovieInBot(selectedMovieId);
-  }
-});
 
 document.getElementById("searchButton").addEventListener("click", () => {
   fetchMovies(searchInput.value.trim());
