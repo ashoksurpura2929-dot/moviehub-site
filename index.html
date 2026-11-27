@@ -1,0 +1,402 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080b14">
+<title>MovieHub - Movie Search</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #080b14;
+  color: white;
+  min-height: 100vh;
+}
+
+header {
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #252b3a;
+}
+
+.logo {
+  font-size: 25px;
+  font-weight: bold;
+  color: #f5bd52;
+}
+
+.logo span {
+  color: white;
+}
+
+.bot-link {
+  text-decoration: none;
+  color: white;
+  background: #1769dc;
+  padding: 10px 15px;
+  border-radius: 20px;
+  font-size: 13px;
+}
+
+.hero {
+  text-align: center;
+  padding: 65px 18px 35px;
+  background: radial-gradient(ellipse at top, #25294c, #080b14 70%);
+}
+
+.hero h1 {
+  font-size: clamp(32px, 7vw, 48px);
+  margin-bottom: 12px;
+}
+
+.hero h1 span {
+  color: #f5bd52;
+}
+
+.hero p {
+  color: #aeb6c9;
+  line-height: 1.6;
+  margin-bottom: 25px;
+}
+
+.search {
+  display: flex;
+  max-width: 550px;
+  margin: auto;
+  background: #1a2030;
+  border: 1px solid #3a4256;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.search input {
+  flex: 1;
+  min-width: 0;
+  padding: 16px;
+  background: transparent;
+  color: white;
+  border: none;
+  outline: none;
+  font-size: 15px;
+}
+
+.search button {
+  background: #e9ad3c;
+  color: #111;
+  border: none;
+  padding: 0 20px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+main {
+  max-width: 1100px;
+  margin: auto;
+  padding: 30px 18px;
+}
+
+.section-title {
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+
+.movies {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+  gap: 16px;
+}
+
+.movie {
+  background: #151b29;
+  border: 1px solid #272f41;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.poster {
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, #343e64, #171b2c);
+  font-size: 55px;
+}
+
+.movie-info {
+  padding: 13px;
+}
+
+.movie-info h3 {
+  font-size: 15px;
+  margin-bottom: 7px;
+}
+
+.movie-info p {
+  color: #aab3c5;
+  font-size: 12px;
+  margin-bottom: 12px;
+}
+
+.details {
+  width: 100%;
+  padding: 9px;
+  border: none;
+  border-radius: 7px;
+  background: #e9ad3c;
+  color: #111;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#message {
+  color: #aab3c5;
+  text-align: center;
+  padding: 25px 5px;
+}
+
+footer {
+  text-align: center;
+  color: #8790a4;
+  padding: 25px 15px;
+  border-top: 1px solid #252b3a;
+  font-size: 13px;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #000c;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-content {
+  background: #1a2030;
+  border: 1px solid #3a4256;
+  padding: 25px;
+  border-radius: 14px;
+  max-width: 400px;
+  width: 100%;
+}
+
+.modal-content h2 {
+  margin-bottom: 15px;
+  color: #f5bd52;
+}
+
+.modal-content p {
+  color: #c2c9d7;
+  line-height: 1.7;
+  margin-bottom: 18px;
+}
+
+.close {
+  background: #e9ad3c;
+  color: #111;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+@media(max-width: 380px) {
+  .movies {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .poster {
+    height: 150px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">MOVIE<span>HUB</span> 🎬</div>
+  <a class="bot-link"
+     href="https://t.me/MyMovieHub2026Bot"
+     target="_blank" rel="noopener">
+     Open Bot
+  </a>
+</header>
+
+<section class="hero">
+  <h1>Discover <span>Movies</span></h1>
+  <p>Search your favorite movies and explore your movie library.</p>
+
+  <div class="search">
+    <input id="searchInput"
+           type="search"
+           placeholder="Search movies..."
+           aria-label="Search movies">
+    <button id="searchButton">Search</button>
+  </div>
+</section>
+
+<main>
+  <h2 class="section-title">🎬 Movie Collection</h2>
+
+  <div class="movies" id="movieList"></div>
+  <div id="message" role="status"></div>
+</main>
+
+<div class="modal" id="movieModal" role="dialog"
+     aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-content">
+    <h2 id="modalTitle"></h2>
+    <p id="modalDescription"></p>
+    <button class="close" id="closeModal">Close</button>
+  </div>
+</div>
+
+<footer>
+  © 2026 MovieHub. All rights reserved.
+  <br><br>
+  Your Movie Search Destination 🎥
+</footer>
+
+<script>
+"use strict";
+
+const movies = [
+  {
+    title: "Inception",
+    year: "2010",
+    genre: "Sci-Fi",
+    description: "A science fiction thriller about dreams and the human mind."
+  },
+  {
+    title: "Interstellar",
+    year: "2014",
+    genre: "Adventure",
+    description: "A space adventure about humanity and exploration."
+  },
+  {
+    title: "The Dark Knight",
+    year: "2008",
+    genre: "Action",
+    description: "A superhero crime thriller set in Gotham City."
+  },
+  {
+    title: "Avatar",
+    year: "2009",
+    genre: "Fantasy",
+    description: "An adventure on the mysterious world of Pandora."
+  },
+  {
+    title: "Titanic",
+    year: "1997",
+    genre: "Romance",
+    description: "A romantic drama aboard the famous ocean liner."
+  },
+  {
+    title: "Joker",
+    year: "2019",
+    genre: "Drama",
+    description: "A psychological drama about a troubled comedian."
+  }
+];
+
+const movieList = document.getElementById("movieList");
+const searchInput = document.getElementById("searchInput");
+const message = document.getElementById("message");
+const modal = document.getElementById("movieModal");
+
+function renderMovies(items) {
+  movieList.replaceChildren();
+
+  message.textContent = items.length
+    ? ""
+    : "No movies found. Try another search.";
+
+  items.forEach(movie => {
+    const card = document.createElement("article");
+    card.className = "movie";
+
+    const poster = document.createElement("div");
+    poster.className = "poster";
+    poster.textContent = "🎬";
+
+    const info = document.createElement("div");
+    info.className = "movie-info";
+
+    const title = document.createElement("h3");
+    title.textContent = movie.title;
+
+    const year = document.createElement("p");
+    year.textContent = movie.year + " • " + movie.genre;
+
+    const button = document.createElement("button");
+    button.className = "details";
+    button.textContent = "View Details";
+
+    button.addEventListener("click", () => {
+      document.getElementById("modalTitle").textContent =
+        movie.title;
+
+      document.getElementById("modalDescription").textContent =
+        movie.description + " Year: " + movie.year +
+        ". Genre: " + movie.genre + ".";
+
+      modal.style.display = "flex";
+    });
+
+    info.append(title, year, button);
+    card.append(poster, info);
+    movieList.append(card);
+  });
+}
+
+function searchMovies() {
+  const query = searchInput.value.trim().toLowerCase();
+
+  const results = movies.filter(movie =>
+    movie.title.toLowerCase().includes(query) ||
+    movie.genre.toLowerCase().includes(query) ||
+    movie.year.includes(query)
+  );
+
+  renderMovies(results);
+}
+
+document.getElementById("searchButton")
+  .addEventListener("click", searchMovies);
+
+searchInput.addEventListener("input", searchMovies);
+
+document.getElementById("closeModal")
+  .addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
+modal.addEventListener("click", event => {
+  if (event.target === modal) {
+    modal.style.display = "none";
+  }
+});
+
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") {
+    modal.style.display = "none";
+  }
+});
+
+renderMovies(movies);
+</script>
+
+</body>
+  </html>
+  
